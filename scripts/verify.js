@@ -47,14 +47,15 @@ async function main() {
   console.log("SLVesting:", VESTING_ADDR);
 
   // ── 1) 토큰 전체 상태 ──────────────────────────────
-  const TOTAL = 2_000_000_000n * 10n ** 18n;
+  // (감사 Info 7) 초기 발행량은 온체인 상수 INITIAL_SUPPLY에서 읽고, 실제 유통은 totalSupply()로 조회
+  const initial = await token.INITIAL_SUPPLY();
   const supply = await token.totalSupply();
-  const burned = TOTAL - supply;
+  const burned = initial - supply;
   const vestingBal = await token.balanceOf(VESTING_ADDR);
   console.log("\n=== 토큰 상태 ===");
-  console.log(`총 발행(설계)   : ${fmt(TOTAL)} SL`);
+  console.log(`초기 발행량     : ${fmt(initial)} SL`);
   console.log(`현재 총공급량   : ${fmt(supply)} SL`);
-  console.log(`소각됨          : ${fmt(burned)} SL  (Burn Reserve)`);
+  console.log(`소각됨          : ${fmt(burned)} SL  (Protocol Reserve)`);
   console.log(`베스팅 컨트랙트 보유: ${fmt(vestingBal)} SL`);
 
   // ── 2) 현재 청구 가능량 + 스케줄 ───────────────────

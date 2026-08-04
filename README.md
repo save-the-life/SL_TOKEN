@@ -91,6 +91,18 @@ npx hardhat run scripts/deploy.js --network opbnbTestnet
 출력되는 `SLToken` / `SLVesting` 주소를 기록하세요.
 익스플로러: https://opbnb-testnet.bscscan.com/
 
+### 배포 환경변수 (선택)
+
+- `TGE_TIMESTAMP` — 베스팅 시작(=상장) 시각을 unix 초로 지정. 미지정 시 "배포 시각 + 1시간"이 기본.
+  베스팅 컨트랙트가 `start >= now` 를 강제하므로 **과거 값은 거부**됨. 메인넷은 실제 상장 예정 시각을 지정할 것.
+- `VESTING_OWNER` — 배포·분배 후 `SLVesting` 소유권을 이전할 주소(= 48시간 타임락 멀티시그).
+  지정 시 배포 마지막에 자동으로 `transferOwnership` 수행. 미지정 시 소유권은 배포자에게 유지.
+
+```bash
+TGE_TIMESTAMP=1793577600 VESTING_OWNER=0xTimelockMultisig \
+  npx hardhat run scripts/deploy.js --network opbnbTestnet
+```
+
 ## 7. (선택) 컨트랙트 검증
 
 NodeReal 포털에서 API 키를 발급받아 `.env`의 `NODEREAL_API_KEY`에 넣은 뒤:
@@ -122,6 +134,36 @@ npx hardhat run scripts/verify.js --network opbnbTestnet
 
 배포 주소는 `deployments/<network>.json`을 자동으로 읽습니다.
 다른 주소를 검증하려면 환경변수 `TOKEN_ADDR`, `VESTING_ADDR`로 지정하세요.
+
+---
+
+## 10. 1차 감사(QuillAudits) 대응 내역
+
+컨트랙트 코드에 아래 수정을 반영했습니다.
+
+| # | 심각도 | 반영 내용 |
+| --- | --- | --- |
+| 1 | High | `updateBeneficiary` — 수혜자 변경 전 기존 수혜자에게 미청구분 자동 정산. + 소유권을 48h 타임락 멀티시그로 이전(아래) |
+| 2 | High | `createSchedule` — `start`를 `[now, now+365일]`로 온체인 검증 |
+| 3 | Medium | `createSchedule` — 잔고 대비 지급여력 검증 + `totalCommitted` 추적 |
+| 4 | Medium | `release` — 청구액과 잔고 중 작은 값 지급(부족 시 동결 없이 이월) |
+| 5 | Medium | `createSchedule` — cliff/duration 상한 검증 + `amendSchedule`(시작 전 정정) 추가 |
+| 6 | Low | `sweep` — 커밋되지 않은 잉여분만 오너가 회수 |
+| 7 | Info | `TOTAL_SUPPLY` → `INITIAL_SUPPLY` 이름 변경, 유통량은 `totalSupply()`로 조회 |
+| 8 | Info | `SLToken`에서 Ownable 제거(오너 전용 기능 없음) |
+
+### 소유권 이전 — 48시간 타임락 멀티시그 (High 1)
+
+메인넷에서는 배포·분배 직후 `SLVesting` 소유권을 **48시간 타임락이 걸린 멀티시그**로 이전합니다.
+
+1. 멀티시그 생성 (opBNB Safe: https://multisig.bnbchain.org) — 서명자·정족수 지정
+2. OpenZeppelin `TimelockController` 배포 — `minDelay = 172800`(48시간, 초), proposer=멀티시그, executor=멀티시그
+3. 배포 시 `VESTING_OWNER`에 타임락 주소를 지정 → 자동 `transferOwnership`
+   (또는 배포 후 수동으로 `vesting.transferOwnership(타임락주소)`)
+
+이후 `updateBeneficiary`·`amendSchedule`·`sweep` 등 오너 권한은 "멀티시그 승인 + 48시간 지연"을 거쳐야만 실행됩니다.
+
+> `SLToken`은 Ownable을 제거했으므로 소유권 이전 대상이 아닙니다(발행 후 통제 권한 없음).
 
 ---
 

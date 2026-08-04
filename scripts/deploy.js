@@ -35,10 +35,14 @@ async function main() {
   const vestingAddr = await vesting.getAddress();
   console.log("SLVesting 배포:", vestingAddr);
 
-  // 4) TGE 시각 (기본: 지금). 필요시 env TGE_TIMESTAMP(unix sec)로 지정.
-  const tgeNow = BigInt((await ethers.provider.getBlock("latest")).timestamp);
-  const tge = process.env.TGE_TIMESTAMP ? BigInt(process.env.TGE_TIMESTAMP) : tgeNow;
-  console.log("TGE 시각(unix):", tge.toString());
+  // 4) TGE 시각. env TGE_TIMESTAMP(unix sec)로 상장 예정 시각을 지정.
+  //    (감사 High 2) 베스팅 컨트랙트가 start >= now 를 강제하므로, 미지정 시 기본값은
+  //    "지금 + 버퍼"로 둔다(배포가 여러 블록에 걸쳐도 start in past 방지). 메인넷은 반드시
+  //    실제 상장 예정 시각을 TGE_TIMESTAMP로 지정할 것.
+  const nowTs = BigInt((await ethers.provider.getBlock("latest")).timestamp);
+  const DEFAULT_TGE_BUFFER = 3600n; // 1시간
+  const tge = process.env.TGE_TIMESTAMP ? BigInt(process.env.TGE_TIMESTAMP) : nowTs + DEFAULT_TGE_BUFFER;
+  console.log("TGE 시각(unix):", tge.toString(), process.env.TGE_TIMESTAMP ? "(지정)" : "(기본: now+1h)");
 
   // 5) 버킷별 분배
   console.log("\n--- 분배 시작 ---");
@@ -76,6 +80,21 @@ async function main() {
     } else {
       throw new Error(`알 수 없는 type: ${b.type}`);
     }
+  }
+
+  // 5-b) (감사 High 1) SLVesting 소유권 이전 — 48시간 타임락 멀티시그로.
+  //      VESTING_OWNER 환경변수(= TimelockController 주소, 48h 지연, 멀티시그가 proposer)가
+  //      지정된 경우에만 이전한다. 미지정 시 배포자에게 남으며, 메인넷 전 반드시 이전할 것.
+  if (process.env.VESTING_OWNER) {
+    const tx = await vesting.transferOwnership(process.env.VESTING_OWNER);
+    await tx.wait();
+    console.log(`\n🔐 SLVesting 소유권 이전 → ${process.env.VESTING_OWNER}`);
+    console.log("   (48시간 타임락 멀티시그 주소여야 함)");
+  } else {
+    console.log(
+      "\n⚠️  SLVesting 소유권이 배포자에게 있습니다. 메인넷에서는 VESTING_OWNER" +
+        "(48h 타임락 멀티시그)로 이전 필요."
+    );
   }
 
   // 6) 결과 확인
