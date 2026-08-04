@@ -27,7 +27,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  *  - Med 3   createSchedule: 컨트랙트 잔고 대비 지급여력(solvency) 검증 + 커밋 총액(totalCommitted) 추적.
  *  - Med 4   release: "청구액과 잔고 중 작은 값"을 지급해 부족분 발생 시에도 동결 없이 진행.
  *  - Med 5   createSchedule: cliff/duration 상한 검증 + 시작 전 스케줄 수정(amendSchedule) 허용.
- *  - Low 6   sweep: 스케줄에 커밋되지 않은 잉여분만 오너가 회수(커밋 물량은 불변).
+ *  - Low 6   sweep: 토큰 인자로 일반화. SL은 잉여분만(잔고-totalCommitted), 외부 토큰은 전액 회수.
+ *            (surplus 계산은 확정본 그대로 — totalReleased 미도입)
+ *  - 추가    수혜자 검증 강화: address(0)/this/token 을 beneficiary로 지정 금지(생성·변경 시).
  * ─────────────────────────────────────────────────────────────────────────
  */
 contract SLVesting is Ownable {
@@ -62,7 +64,7 @@ contract SLVesting is Ownable {
     event ScheduleAmended(bytes32 indexed id);
     event Released(bytes32 indexed id, address indexed beneficiary, uint256 amount);
     event BeneficiaryUpdated(bytes32 indexed id, address oldBeneficiary, address newBeneficiary);
-    event Swept(address indexed to, uint256 amount);
+    event Swept(address indexed token, address indexed to, uint256 amount);
 
     constructor(address token_, address owner_) Ownable(owner_) {
         require(token_ != address(0), "token=0");
@@ -82,7 +84,11 @@ contract SLVesting is Ownable {
         uint16 tgeBps
     ) external onlyOwner {
         require(!schedules[id].exists, "exists");
-        require(beneficiary != address(0), "beneficiary=0");
+        // (감사 추가) 시스템 주소를 수혜자로 지정 금지: 0 / 컨트랙트 자신 / 토큰 컨트랙트
+        require(
+            beneficiary != address(0) && beneficiary != address(this) && beneficiary != address(token),
+            "bad beneficiary"
+        );
         require(total > 0, "total=0");
         require(tgeBps <= 10000, "tgeBps>100%");
         // (High 2) start 범위 검증 — 과거값(즉시해제)·비현실적 미래값(영구잠김) 차단
@@ -193,7 +199,11 @@ contract SLVesting is Ownable {
      *         이 권한은 배포 직후 48시간 타임락 멀티시그로 이전해 통제할 것.
      */
     function updateBeneficiary(bytes32 id, address newBeneficiary) external onlyOwner {
-        require(newBeneficiary != address(0), "beneficiary=0");
+        // (감사 추가) 시스템 주소를 수혜자로 지정 금지
+        require(
+            newBeneficiary != address(0) && newBeneficiary != address(this) && newBeneficiary != address(token),
+            "bad beneficiary"
+        );
         Schedule storage s = schedules[id];
         require(s.exists, "no schedule");
         _release(id); // 기존 수혜자에게 정산 먼저(청구분이 없으면 무동작)
@@ -202,15 +212,23 @@ contract SLVesting is Ownable {
     }
 
     /**
-     * @notice (Low 6) 스케줄에 약정되지 않은 잉여분만 회수. 커밋된 물량은 절대 인출되지 않음.
-     *         잔고 < 커밋(비정상) 상태에서는 언더플로로 revert하여 커밋 물량을 보호.
+     * @notice (Low 6) 잉여 토큰 회수. 오너만.
+     *         - SL 토큰(this.token)   : 스케줄에 약정되지 않은 잉여분만 회수(커밋 물량은 보호).
+     *           totalCommitted는 release 때마다 감소하므로 "잔고 - totalCommitted"가 곧 잉여이며,
+     *           잔고 < 커밋(비정상) 상태에서는 언더플로로 revert하여 커밋 물량을 보호.
+     *         - 그 외 ERC-20(오전송분): 전액 회수(베스팅 약정과 무관).
+     * @dev QuillAudits Low #6 확정본. surplus 계산은 SL 브랜치에서 그대로 유지.
      */
-    function sweep(address to) external onlyOwner returns (uint256 surplus) {
+    function sweep(IERC20 t, address to) external onlyOwner returns (uint256 amount) {
         require(to != address(0), "to=0");
-        surplus = token.balanceOf(address(this)) - totalCommitted;
-        require(surplus > 0, "no surplus");
-        token.safeTransfer(to, surplus);
-        emit Swept(to, surplus);
+        if (address(t) == address(token)) {
+            amount = t.balanceOf(address(this)) - totalCommitted; // 잉여분만
+        } else {
+            amount = t.balanceOf(address(this)); // 오전송된 외부 토큰 전액
+        }
+        require(amount > 0, "nothing to sweep");
+        t.safeTransfer(to, amount);
+        emit Swept(address(t), to, amount);
     }
 
     function scheduleCount() external view returns (uint256) {

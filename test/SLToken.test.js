@@ -157,19 +157,47 @@ describe("SL Token 얼로케이션 & 베스팅 (감사 대응 반영)", function
     ).to.be.revertedWith("underfunded");
   });
 
-  it("(Low 6) sweep은 커밋되지 않은 잉여분만 회수", async function () {
+  it("(Low 6) sweep(SL): 커밋되지 않은 잉여분만 회수", async function () {
+    const tokenAddr = await token.getAddress();
     const sched = toWei("100000000");
     const extra = toWei("5000000");
     await token.transfer(await vesting.getAddress(), sched + extra);
     await vesting.createSchedule(ethers.id("ECOSYSTEM"), alice.address, sched, tge, 12n * MONTH, 36n * MONTH, 0);
 
     const before = await token.balanceOf(deployer.address);
-    await vesting.sweep(deployer.address);
+    await vesting.sweep(tokenAddr, deployer.address);
     const after = await token.balanceOf(deployer.address);
-    expect(after - before).to.equal(extra); // 잉여만 회수
+    expect(after - before).to.equal(extra); // 잉여만 회수(커밋 물량 보호)
 
     // 남은 잉여 없음 → revert
-    await expect(vesting.sweep(deployer.address)).to.be.revertedWith("no surplus");
+    await expect(vesting.sweep(tokenAddr, deployer.address)).to.be.revertedWith("nothing to sweep");
+  });
+
+  it("(Low 6) sweep(외부 토큰): 오전송된 다른 ERC-20을 전액 회수", async function () {
+    // 다른 ERC-20을 대역으로 배포(SLToken 재사용)
+    const SLToken = await ethers.getContractFactory("SLToken");
+    const foreign = await SLToken.deploy(deployer.address);
+    await foreign.waitForDeployment();
+    const amt = toWei("1000000");
+    await foreign.transfer(await vesting.getAddress(), amt);
+
+    const before = await foreign.balanceOf(deployer.address);
+    await vesting.sweep(await foreign.getAddress(), deployer.address);
+    const after = await foreign.balanceOf(deployer.address);
+    expect(after - before).to.equal(amt); // 외부 토큰은 전액 회수
+  });
+
+  it("(감사 추가) 시스템 주소(this/token)는 수혜자로 지정 불가", async function () {
+    const amount = toWei("1000000");
+    await token.transfer(await vesting.getAddress(), amount);
+    const tokenAddr = await token.getAddress();
+    const vestingAddr = await vesting.getAddress();
+    await expect(
+      vesting.createSchedule(ethers.id("BAD1"), tokenAddr, amount, tge, 0n, 12n * MONTH, 0)
+    ).to.be.revertedWith("bad beneficiary");
+    await expect(
+      vesting.createSchedule(ethers.id("BAD2"), vestingAddr, amount, tge, 0n, 12n * MONTH, 0)
+    ).to.be.revertedWith("bad beneficiary");
   });
 
   it("(High 1) updateBeneficiary는 변경 전 기존 수혜자에게 정산", async function () {

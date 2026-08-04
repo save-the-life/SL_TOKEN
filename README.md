@@ -148,9 +148,10 @@ npx hardhat run scripts/verify.js --network opbnbTestnet
 | 3 | Medium | `createSchedule` — 잔고 대비 지급여력 검증 + `totalCommitted` 추적 |
 | 4 | Medium | `release` — 청구액과 잔고 중 작은 값 지급(부족 시 동결 없이 이월) |
 | 5 | Medium | `createSchedule` — cliff/duration 상한 검증 + `amendSchedule`(시작 전 정정) 추가 |
-| 6 | Low | `sweep` — 커밋되지 않은 잉여분만 오너가 회수 |
+| 6 | Low | `sweep(IERC20,address)` — SL은 잉여분만(잔고−totalCommitted), 외부 토큰은 전액 회수 |
 | 7 | Info | `TOTAL_SUPPLY` → `INITIAL_SUPPLY` 이름 변경, 유통량은 `totalSupply()`로 조회 |
 | 8 | Info | `SLToken`에서 Ownable 제거(오너 전용 기능 없음) |
+| + | 추가 | 수혜자 검증 강화 — `address(0)`/컨트랙트 자신/토큰 주소를 beneficiary로 지정 금지(생성·변경 시) |
 
 ### 소유권 이전 — 48시간 타임락 멀티시그 (High 1)
 
