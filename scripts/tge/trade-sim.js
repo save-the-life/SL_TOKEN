@@ -10,6 +10,19 @@ const hre = require("hardhat");
 const { ethers } = hre;
 const L = require("./lib");
 
+const erc20Iface = new ethers.Interface(L.ERC20_ABI);
+function receivedFromLogs(receipt, tokenAddr, to) {
+  let sum = 0n;
+  for (const log of receipt.logs) {
+    if (log.address.toLowerCase() !== tokenAddr.toLowerCase()) continue;
+    try {
+      const p = erc20Iface.parseLog(log);
+      if (p && p.name === "Transfer" && p.args.to.toLowerCase() === to.toLowerCase()) sum += p.args.value;
+    } catch {}
+  }
+  return sum;
+}
+
 function outGivenIn(amtIn, rIn, rOut, feeBps) {
   const inWithFee = amtIn * BigInt(10000 - feeBps);
   return (inWithFee * rOut) / (rIn * 10000n + inWithFee);
@@ -59,9 +72,9 @@ async function main() {
 
     await L.approveExact(dex.usdt, dex.router, x, signer);
     const quote = await router.getAmountsOut(x, [dex.usdt, tokenAddr]);
-    const slBefore = await sl.balanceOf(signer.address);
-    await (await router.swapExactTokensForTokens(x, (quote[1] * 99n) / 100n, [dex.usdt, tokenAddr], signer.address, await L.deadline())).wait();
-    const got = (await sl.balanceOf(signer.address)) - slBefore;
+    const rcBuy = await (await router.swapExactTokensForTokens(x, (quote[1] * 99n) / 100n, [dex.usdt, tokenAddr], signer.address, await L.deadline())).wait();
+    // 공개 RPC 는 직전 tx 를 늦게 반영할 수 있어 잔고 차이 대신 영수증의 Transfer 로그에서 받은 수량을 읽는다.
+    const got = receivedFromLogs(rcBuy, tokenAddr, signer.address) || quote[1];
     const exec = Number(ethers.formatUnits(x, usdtDec)) / Number(ethers.formatUnits(got, 18));
     const impact = (exec / pBefore - 1) * 100;
 

@@ -121,14 +121,22 @@ async function main() {
         if (before >= DUST) return "already-has-dust";
         const tx = await token.transfer(wallet, DUST);
         await tx.wait();
-        const after = await token.balanceOf(wallet);
+        // 공개 RPC 가 직전 tx 를 늦게 반영할 수 있어 최대 6회(12초) 재조회
+        let after = 0n;
+        for (let i = 0; i < 6; i++) {
+          after = await token.balanceOf(wallet);
+          if (after >= DUST) break;
+          await new Promise((r) => setTimeout(r, 2000));
+        }
         if (after < DUST) throw new Error(`dust 확인 실패: ${wallet} 잔고 ${after}`);
         console.log(`🧪 ${b.label}: dust 1 SL → ${wallet} 확인  ${tx.hash}`);
         return tx.hash;
       });
       await step(`bucket:${b.key}:rest`, async () => {
-        const before = await token.balanceOf(wallet);
-        if (before >= amount) return "already-funded";
+        const read = await token.balanceOf(wallet);
+        if (read >= amount) return "already-funded";
+        // dust 단계가 끝났으면 잔고는 최소 1 SL 이다(RPC 지연으로 0 이 읽혀도 dust 만큼은 뺀다)
+        const before = read >= DUST ? read : DUST;
         const tx = await token.transfer(wallet, amount - before);
         await tx.wait();
         console.log(`➡️  ${b.label}: ${b.amount} → ${wallet}  ${tx.hash}`);

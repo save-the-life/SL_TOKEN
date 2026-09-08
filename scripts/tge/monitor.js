@@ -82,23 +82,34 @@ async function main() {
     } else {
       console.log(`${now}  페어 없음/빈 페어`);
     }
-    // 대량 이동
+    // 대량 이동 — 공개 RPC 는 eth_getLogs 범위·횟수를 제한하므로 최대 50블록씩, 실패해도 봇은 죽지 않는다
     const cur = rec.block;
     if (cur > lastBlock) {
-      const evs = await token.queryFilter(token.filters.Transfer(), lastBlock + 1, cur);
-      for (const ev of evs) {
-        const v = ev.args.value;
-        if (v >= threshold) {
-          await notify(`[SL monitor] 대량 이동 ${L.fmt(v)} SL  ${ev.args.from} → ${ev.args.to}  tx ${ev.transactionHash}`);
-          rec.alerts = (rec.alerts || []).concat(ev.transactionHash);
+      const to = Math.min(cur, lastBlock + 50);
+      try {
+        const evs = await token.queryFilter(token.filters.Transfer(), lastBlock + 1, to);
+        for (const ev of evs) {
+          const v = ev.args.value;
+          if (v >= threshold) {
+            await notify(`[SL monitor] 대량 이동 ${L.fmt(v)} SL  ${ev.args.from} → ${ev.args.to}  tx ${ev.transactionHash}`);
+            rec.alerts = (rec.alerts || []).concat(ev.transactionHash);
+          }
         }
+        lastBlock = to;
+      } catch (e) {
+        rec.logError = (e.shortMessage || e.message || "").slice(0, 80);
+        console.log(`   (getLogs ${lastBlock + 1}-${to} 실패: ${rec.logError} — 다음 주기에 재시도)`);
+        if (cur - lastBlock > 500) lastBlock = cur - 50; // 너무 뒤처지면 최근 구간만 본다
       }
-      lastBlock = cur;
     }
     fs.appendFileSync(logFile, JSON.stringify(rec) + "\n");
   };
 
-  await tick();
+  try {
+    await tick();
+  } catch (e) {
+    console.log("첫 tick 오류:", e.message);
+  }
   await new Promise((resolve) => {
     const h = setInterval(async () => {
       try {

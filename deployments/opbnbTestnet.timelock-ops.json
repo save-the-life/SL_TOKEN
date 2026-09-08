@@ -1,0 +1,18 @@
+{
+  "ops": [
+    {
+      "opId": "0xadd28c16a5c48f01832978c46d7e052aa08cea7ea4b2de5d26d217fd3984a077",
+      "kind": "updateBeneficiary",
+      "bucket": "ADVISORS",
+      "oldBeneficiary": "0x6E155B03B4E234a2dB0cA06a50Dc1d5E644bAf93",
+      "newBeneficiary": "0x14B0e8443fDAc169F460B6d1D5a5101b78f1374B",
+      "target": "0x15B2739C02F606C8680a771117aA300B7c70Cea1",
+      "data": "0xd44f6738f73e558a48b749a726a4c38b5241d34c97c31aea6c9020479401d566f90de5c500000000000000000000000014b0e8443fdac169f460b6d1d5a5101b78f1374b",
+      "salt": "0x0da340bbe9c86664611acabfa6f94e84d0614da19d1df16a8e03f65060a4c45e",
+      "ready": "1789014051",
+      "readyIso": "2026-09-10T04:20:51.000Z",
+      "scheduledTx": "0xcb1805cb7312ccf2aceceea65ef85f0952a5d8f9a059f47fc11990bf7aef9651",
+      "executed": false
+    }
+  ]
+}

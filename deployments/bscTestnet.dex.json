@@ -1,0 +1,77 @@
+{
+  "usdt": "0x06355dA0Ace573AB56eFb918526eefdAb462F213",
+  "usdtSource": "MockUSDT",
+  "usdtMintedAt": "2026-09-08T04:16:38.646Z",
+  "hostilePair": "0xb8E93D129C3C65AC93B17128eD5EB5405f4422EF",
+  "hostileTx": "0x103647b7e41cc83f3401c2315cf0cf032e16a6cd76df26ff7371a946893fb7b1",
+  "router": "0xD99D1c33F9fC3444f8101754aBC46c52416550D1",
+  "factory": "0x6725F303b657a9451d8BA641348b6761A6CC7a17",
+  "token": "0x15B2739C02F606C8680a771117aA300B7c70Cea1",
+  "pair": "0xb8E93D129C3C65AC93B17128eD5EB5405f4422EF",
+  "addLiquidityTx": "0xac9f312580d96bf98b4e34419138dc22119a692d0597eb3ff658bb32e07ba2d2",
+  "addLiquidityBlock": 129765586,
+  "lpRecipient": "0x6E155B03B4E234a2dB0cA06a50Dc1d5E644bAf93",
+  "lpBalance": "100842474674960820855396",
+  "initialPrice": 0.010018032458425164,
+  "lock": {
+    "timelock": "0xE55fdBDFC6d0c7864e76eaB458DA6106832eA105",
+    "opId": "0x9a56f850ad74f7e906449980707a77b223fd4a73e3ed81ee6f71405b6453db92",
+    "target": "0xb8E93D129C3C65AC93B17128eD5EB5405f4422EF",
+    "data": "0xa9059cbb0000000000000000000000006e155b03b4e234a2db0ca06a50dc1d5e644baf9300000000000000000000000000000000000000000000155aae772e8c2ce7e264",
+    "salt": "0x50eaaf1393eb6ec6d1482b3c35257282729386f050b90818d7bc70434d2ddf03",
+    "amount": "100842474674960820855396",
+    "recipient": "0x6E155B03B4E234a2dB0cA06a50Dc1d5E644bAf93",
+    "ready": "1851913043",
+    "readyIso": "2028-09-07T04:17:23.000Z",
+    "txTransfer": "0x666ec5916fe35381f2951b9ead4f34f0b0fa579d52cb735f73980168924458ac",
+    "txSchedule": "0xa40810914821bfc6b8bd9d98f814c0f807d7dd4303b70ac7403421636efdc7ed"
+  },
+  "tradeSim": {
+    "at": "2026-09-08T04:21:58.671Z",
+    "startPrice": 0.010038058485273492,
+    "depthUpUsdt": "100728194866307820271",
+    "depthDownSl": "10034629207837772367717",
+    "rows": [
+      {
+        "fraction": 0.001,
+        "usdtIn": "10110280504908835904",
+        "slOut": "1004178260027421566133",
+        "execPrice": 0.010068212893428654,
+        "impactPct": 0.3004008016032289,
+        "priceAfterRoundTrip": 0.010038098557443158
+      },
+      {
+        "fraction": 0.005,
+        "usdtIn": "50551604326952661543",
+        "slOut": "5000947422018770997222",
+        "execPrice": 0.01010840548020521,
+        "impactPct": 0.7004008016032071,
+        "priceAfterRoundTrip": 0.010038298124802893
+      },
+      {
+        "fraction": 0.01,
+        "usdtIn": "101105218686014125637",
+        "slOut": "9952478563248073555067",
+        "execPrice": 0.010158797935960346,
+        "impactPct": 1.2004008016031964,
+        "priceAfterRoundTrip": 0.010038695299321864
+      },
+      {
+        "fraction": 0.02,
+        "usdtIn": "202218438014387711604",
+        "slOut": "19710193143474821226644",
+        "execPrice": 0.010259586831158646,
+        "impactPct": 2.2004008016032195,
+        "priceAfterRoundTrip": 0.010039481922258361
+      },
+      {
+        "fraction": 0.05,
+        "usdtIn": "505585709163299015145",
+        "slOut": "47870293834218922417240",
+        "execPrice": 0.010561575220620295,
+        "impactPct": 5.200400801603222,
+        "priceAfterRoundTrip": 0.0100413926558323
+      }
+    ]
+  }
+}
