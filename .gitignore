@@ -17,3 +17,4 @@ deployments/*.progress.json
 deployments/*.monitor.log
 deployments/localhost.*
 deployments/*.monitor.out
+deployments/*.out
