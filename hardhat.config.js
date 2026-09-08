@@ -6,7 +6,16 @@ const accounts = PRIVATE_KEY ? [PRIVATE_KEY] : [];
 
 // 포크 리허설: FORK_URL 이 있으면 in-process hardhat 네트워크가 해당 체인을 포크한다.
 // (여러 스크립트에 걸쳐 상태를 유지하려면 `npx hardhat node --fork <url>` + `--network localhost` 를 쓸 것)
-const hardhatNet = {};
+const hardhatNet = {
+  // 포크 실행 시 Hardhat 이 "No known hardfork for execution on historical block" 오류를 내지 않도록
+  // BNB 계열 체인의 하드포크 이력을 알려 준다 (BSC·opBNB 는 Cancun 호환 EVM).
+  chains: {
+    56: { hardforkHistory: { cancun: 0 } },
+    97: { hardforkHistory: { cancun: 0 } },
+    204: { hardforkHistory: { cancun: 0 } },
+    5611: { hardforkHistory: { cancun: 0 } },
+  },
+};
 if (process.env.FORK_URL) {
   hardhatNet.forking = { url: process.env.FORK_URL };
   if (process.env.FORK_BLOCK) hardhatNet.forking.blockNumber = Number(process.env.FORK_BLOCK);
