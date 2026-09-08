@@ -1,0 +1,10 @@
+#!/bin/sh
+# 프라이빗키·.env 커밋 차단 (활성화: git config core.hooksPath .githooks)
+if git diff --cached --name-only | grep -qE '(^|/)\.env$'; then
+  echo "❌ .env 파일은 커밋할 수 없습니다"; exit 1
+fi
+# deployments/ 의 tx 해시(64자리 hex)는 정상이므로 제외하고, 키 대입 형태만 잡는다
+if git diff --cached -U0 -- . ':(exclude)deployments' | grep -E '^\+' | grep -qiE '(private_?key|privateKey|mnemonic)[[:space:]]*[=:][[:space:]]*["'"'"']?(0x)?[0-9a-f]{64}'; then
+  echo "❌ 프라이빗키로 보이는 값이 스테이징에 있습니다"; exit 1
+fi
+exit 0

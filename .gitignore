@@ -11,3 +11,8 @@ coverage.json
 token.md
 allocations.v4.1.backup.js
 config/allocations.v4.1.backup.js
+
+# 리허설 진행 기록·로그 (주소·해시만 담기지만 노이즈라 제외)
+deployments/*.progress.json
+deployments/*.monitor.log
+deployments/localhost.*

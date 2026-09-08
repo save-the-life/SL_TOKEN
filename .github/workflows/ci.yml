@@ -1,0 +1,22 @@
+name: ci
+
+on:
+  push:
+    branches: [main, rehearsal]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx hardhat test
+      - name: 감사 확정 커밋(13dad9d) 대비 컨트랙트 무변경 확인
+        run: git diff --exit-code 13dad9d -- contracts/SLToken.sol contracts/SLVesting.sol
