@@ -16,3 +16,4 @@ config/allocations.v4.1.backup.js
 deployments/*.progress.json
 deployments/*.monitor.log
 deployments/localhost.*
+deployments/*.monitor.out
