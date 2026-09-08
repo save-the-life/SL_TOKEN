@@ -1,0 +1,13 @@
+{
+  "withdrawals": [
+    {
+      "l2Token": "0xE55fdBDFC6d0c7864e76eaB458DA6106832eA105",
+      "l1Token": "0xe6b66AC04fF023f9C5BD3307B43806BD0aE0Fc21",
+      "amount": "1000000000000000000000",
+      "tx": "0xe3a499b25de159ce25d03afaee13c2fb85aed65ecada5bbf15dfd3c0f42fae90",
+      "block": 200166002,
+      "initiatedAt": "2026-09-08T07:00:25.311Z",
+      "status": "initiated"
+    }
+  ]
+}
