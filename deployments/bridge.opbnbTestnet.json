@@ -7,7 +7,11 @@
       "tx": "0xe3a499b25de159ce25d03afaee13c2fb85aed65ecada5bbf15dfd3c0f42fae90",
       "block": 200166002,
       "initiatedAt": "2026-09-08T07:00:25.311Z",
-      "status": "initiated"
+      "status": "finalized",
+      "proveTx": "0xf22c0167e734ca9c6a748cf11612ca7a4d0a206d498883b104baa2c82579fde8",
+      "finalizeTx": "0x7ca838e9a13d2870600eb4ac2e59ab341d0dc28d41678ecc4adc3c7043a6a31b",
+      "finalizedAt": "2026-09-08T07:03:43.997Z",
+      "l1Minted": "1000"
     }
   ]
 }
