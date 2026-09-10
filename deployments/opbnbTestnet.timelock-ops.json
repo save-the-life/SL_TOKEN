@@ -12,7 +12,8 @@
       "ready": "1789014051",
       "readyIso": "2026-09-10T04:20:51.000Z",
       "scheduledTx": "0xcb1805cb7312ccf2aceceea65ef85f0952a5d8f9a059f47fc11990bf7aef9651",
-      "executed": false
+      "executed": true,
+      "executedTx": "0x45edeef22f4215cc844cd84b9034db4dbe28c6d8b01896595538453dac484ada"
     }
   ]
 }
