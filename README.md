@@ -29,23 +29,25 @@ hardhat.config.js  # opBNB 테스트넷(chainId 5611) 설정
 
 | 카테고리 | 비율 | 토큰 수 | TGE | 클리프 | 선형 | 방식 |
 | --- | --- | --- | --- | --- | --- | --- |
-| Network Access Credit Pool | 10% | 200,000,000 | 100% (즉시) | — | — | direct (관리 지갑 배정) |
-| Participant Program | 5% | 100,000,000 | 100% (즉시) | — | — | direct (관리 지갑 배정) |
-| VC Sale | 15% | 300,000,000 | 0% | 18개월 | 24개월 | vesting |
+| Network Access Credit Pool | 10% | 200,000,000 | 0% | 6개월 | — (6개월 후 전량) | vesting (6개월 락 후 관리 지갑, 수요 기반 방출) |
+| Participant Program | 5% | 100,000,000 | 12% (12,000,000) | 0 | 36개월 | vesting (활동 기반 · 월 상한 ≈2.44M) |
+| VC Sale | 14.75% | 295,000,000 | 0% | 18개월 | 24개월 | vesting |
+| Presale (VC Sale & Presale 의 프리세일 몫) | 0.25% | 5,000,000 | 100% (즉시) | — | — | direct (0.07 USDT, 락업 없음) |
 | Team & Core | 15% | 300,000,000 | 0% | 12개월 | 36개월 | vesting |
-| Treasury | 20% | 400,000,000 | 0% | 12개월 | 24개월 | vesting |
-| Liquidity Pool | 8% | 160,000,000 | 100% (즉시) | — | — | direct |
-| Marketing | 5% | 100,000,000 | 0% | 3개월 | 27개월 | vesting |
+| Treasury | 20% | 400,000,000 | 0% | 6개월 | 60개월 | vesting (분기 최대 20,000,000 = 총공급 1%) |
+| Liquidity Pool | 8% | 160,000,000 | 100% (즉시) | — | — | direct (DEX 유동성 · LP 24개월 락) |
+| Marketing | 5% | 100,000,000 | 20% (20,000,000) | 0 | 24개월 | vesting |
 | Advisors | 2% | 40,000,000 | 0% | 12개월 | 24개월 | vesting |
 | Protocol Reserve (retired) | 5% | 100,000,000 | 발행 직후 영구 소각 | — | — | burn |
-| Ecosystem Reserve | 15% | 300,000,000 | 0% | 12개월 | 24개월 | vesting |
+| Ecosystem Reserve | 15% | 300,000,000 | 0% | 12개월 | 36개월 | vesting (거버넌스 의결 건별 집행) |
 
 * 1개월 = 30일로 계산합니다.
 * 모든 vesting은 클리프 종료 후 선형(linear) 해제입니다. 계단식은 사용하지 않습니다.
 * Protocol Reserve 100M은 발행 직후 소각되어 유효 총공급량은 19억이 됩니다.
 * Network Access Credit Pool(WCS 전환)과 Participant Program은 지금은 관리 지갑에 배정만 하며,
   전환·활동 기반 분배 로직은 오프체인 또는 별도 컨트랙트로 처리합니다.
-* Liquidity Pool은 TGE에 전량 전송 후, DEX 유동성 공급으로 받는 LP 토큰을 24개월 락합니다(별도 락커).
+* Liquidity Pool은 TGE에 전량 전송 후, DEX 유동성 공급으로 받는 LP 토큰을 24개월 락합니다(타임락 예약 전송).
+* 상장일 즉시 해제 합계 = LP 160M + Marketing 20M + Participant 12M + Presale 5M = 197,000,000 (9.85%), 매도가능 37,000,000 (1.85%). (2026-09-10 회의 확정, 09-12 반영 — 이 표와 config/allocations.js 가 단일 진실, 백서 v2.2 로 공시 예정)
 * Treasury / Ecosystem Reserve는 1년 락 후 선형 해제이며, 실제 사용은 재단 governance vote로 결정·공지합니다.
 
 ## 3. 설치

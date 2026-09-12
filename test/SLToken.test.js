@@ -99,45 +99,66 @@ describe("SL Token 얼로케이션 & 베스팅 (감사 대응 반영)", function
     expect(await vesting.releasable(id)).to.equal(amount);
   });
 
-  it("Treasury: TGE 3% 즉시 해제, 6개월 클리프 동안 3% 유지, 30개월 후 100%", async function () {
+  it("Treasury: TGE 0%, 6개월 클리프, 60개월 선형(분기 ≈20M) → 66개월 후 100%", async function () {
     const amount = toWei("400000000");
     await token.transfer(await vesting.getAddress(), amount);
     const id = ethers.id("TREASURY");
-    // TGE 3%, 6개월 클리프, 24개월 선형
-    await vesting.createSchedule(id, alice.address, amount, tge, 6n * MONTH, 24n * MONTH, 300);
+    // TGE 0%, 6개월 클리프, 60개월 선형
+    await vesting.createSchedule(id, alice.address, amount, tge, 6n * MONTH, 60n * MONTH, 0);
 
     // 생성 직후(start 이전): 0
     expect(await vesting.releasable(id)).to.equal(0n);
 
-    // TGE 시점 도달: 3%
+    // TGE 시점: 0
     await time.increaseTo(tge);
-    expect(await vesting.releasable(id)).to.be.closeTo((amount * 3n) / 100n, toWei("100"));
+    expect(await vesting.releasable(id)).to.equal(0n);
 
-    // 6개월(클리프 끝) 시점: 여전히 ~3% (선형 시작 지점)
+    // 6개월(클리프 끝): 0 (선형 시작 지점)
     await time.increaseTo(tge + 6n * MONTH);
-    expect(await vesting.releasable(id)).to.be.closeTo((amount * 3n) / 100n, toWei("100"));
+    expect(await vesting.releasable(id)).to.be.closeTo(0n, toWei("100"));
 
-    // 6 + 24 = 30개월 후: 전량
-    await time.increaseTo(tge + 30n * MONTH + 1n);
+    // 9개월: 3개월치 = 400M × 3/60 = 20M (분기 상한과 일치)
+    await time.increaseTo(tge + 9n * MONTH);
+    expect(await vesting.releasable(id)).to.be.closeTo(toWei("20000000"), toWei("100"));
+
+    // 6 + 60 = 66개월 후: 전량
+    await time.increaseTo(tge + 66n * MONTH + 1n);
     expect(await vesting.releasable(id)).to.equal(amount);
   });
 
-  it("release(): Marketing TGE 20% + 12개월 선형, 수혜 지갑으로 전송·누적", async function () {
+  it("Participant: TGE 12% 즉시 + 36개월 선형(월 ≈2.44M)", async function () {
+    const amount = toWei("100000000");
+    await token.transfer(await vesting.getAddress(), amount);
+    const id = ethers.id("PARTICIPANT");
+    await vesting.createSchedule(id, alice.address, amount, tge, 0n, 36n * MONTH, 1200);
+
+    await time.increaseTo(tge);
+    expect(await vesting.releasable(id)).to.be.closeTo(toWei("12000000"), toWei("100"));
+
+    // 1개월 후: 12M + 88M/36 ≈ 14,444,444
+    await time.increaseTo(tge + 1n * MONTH);
+    expect(await vesting.releasable(id)).to.be.closeTo(toWei("12000000") + toWei("88000000") / 36n, toWei("100"));
+
+    await time.increaseTo(tge + 36n * MONTH + 1n);
+    expect(await vesting.releasable(id)).to.equal(amount);
+  });
+
+  it("release(): Marketing TGE 20% + 24개월 선형, 수혜 지갑으로 전송·누적", async function () {
     const amount = toWei("100000000");
     await token.transfer(await vesting.getAddress(), amount);
     const id = ethers.id("MARKETING");
-    // TGE 20%, cliff 0, linear 12개월
-    await vesting.createSchedule(id, alice.address, amount, tge, 0n, 12n * MONTH, 2000);
+    // TGE 20%, cliff 0, linear 24개월
+    await vesting.createSchedule(id, alice.address, amount, tge, 0n, 24n * MONTH, 2000);
 
     // TGE 시점 도달 후 청구 → 약 20%
     await time.increaseTo(tge);
     await vesting.release(id);
     expect(await token.balanceOf(alice.address)).to.be.closeTo((amount * 20n) / 100n, toWei("100"));
 
-    // 6개월 후 다시 청구 → 누적 약 20% + 80%*0.5 = 60%
+    // 6개월 후 다시 청구 → 누적 약 20% + 80%×(6/24) = 40%
     await time.increaseTo(tge + 6n * MONTH);
     await vesting.release(id);
-    const expected = (amount * 20n) / 100n + ((amount * 80n) / 100n) / 2n;
+    const expected = (amount * 20n) / 100n + ((amount * 80n) / 100n) / 4n;
     expect(await token.balanceOf(alice.address)).to.be.closeTo(expected, toWei("2000"));
   });
 
