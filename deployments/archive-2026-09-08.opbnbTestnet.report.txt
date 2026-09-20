@@ -1,0 +1,44 @@
+네트워크: opbnbTestnet
+SLToken  : 0xE55fdBDFC6d0c7864e76eaB458DA6106832eA105
+SLVesting: 0x15B2739C02F606C8680a771117aA300B7c70Cea1
+
+=== 토큰 상태 ===
+초기 발행량     : 2,000,000,000 SL
+현재 총공급량   : 1,900,000,000 SL
+소각됨          : 100,000,000 SL  (Protocol Reserve)
+베스팅 컨트랙트 보유: 1,540,000,000 SL
+
+=== 각 베스팅 버킷 — 지금 청구 가능량 ===
+Participant Program    총   100,000,000 | 청구가능             0 | 누적수령 0
+VC Sale                총   300,000,000 | 청구가능             0 | 누적수령 0
+Team & Core            총   300,000,000 | 청구가능             0 | 누적수령 0
+Treasury               총   400,000,000 | 청구가능             0 | 누적수령 0
+Marketing              총   100,000,000 | 청구가능             0 | 누적수령 0
+Advisors               총    40,000,000 | 청구가능             0 | 누적수령 0
+Ecosystem Reserve      총   300,000,000 | 청구가능             0 | 누적수령 0
+
+=== 시점별 해제 비율(%) — 각 버킷 총량 대비 ===
+버킷                        TGE    3개월    6개월   12개월   13개월   24개월   48개월   60개월
+------------------------------------------------------------------------------
+Participant Program      0.0%   0.0%  12.5%  37.5%  41.7%  87.5% 100.0% 100.0%
+VC Sale                  0.0%   0.0%   0.0%   0.0%   0.0%  25.0% 100.0% 100.0%
+Team & Core              0.0%   0.0%   0.0%   0.0%   2.8%  33.3% 100.0% 100.0%
+Treasury                 3.0%   3.0%   3.0%  27.3%  31.3%  75.8% 100.0% 100.0%
+Marketing               20.0%  40.0%  60.0% 100.0% 100.0% 100.0% 100.0% 100.0%
+Advisors                 0.0%   0.0%   0.0%   0.0%   4.2%  50.0% 100.0% 100.0%
+Ecosystem Reserve        0.0%   0.0%   0.0%   0.0%   2.8%  33.3% 100.0% 100.0%
+
+해석: Team은 12개월까지 0%, 13개월부터 오르기 시작해 48개월(12+36)에 100%.
+      TGE 비율이 있는 버킷(노드세일·Marketing 등)은 TGE 열에서 이미 일부 해제됨.
+
+=== 배포 검증 기록 (2026-09-08) ===
+소스 커밋      : 3ebdcba (컨트랙트는 감사 Fixed In 13dad9d 와 동일) · 태그 v1.0.0-audited
+컴파일 설정    : solc 0.8.24, optimizer 200, OpenZeppelin 5.6.1
+SLToken        : 0xE55fdBDFC6d0c7864e76eaB458DA6106832eA105  verified  https://opbnb-testnet.bscscan.com/address/0xE55fdBDFC6d0c7864e76eaB458DA6106832eA105#code
+SLVesting      : 0x15B2739C02F606C8680a771117aA300B7c70Cea1  verified  https://opbnb-testnet.bscscan.com/address/0x15B2739C02F606C8680a771117aA300B7c70Cea1#code
+SLTimelock     : 0xAb8b27cDE531cc396c8BE012FAABB083f202d206  verified  (minDelay 172800, proposer/executor = 배포자, admin = 0x0)
+소각 tx        : 0x029bbb5384b956d23d574a1718729f0fa707e6064681f77d0d41f2cc29e3d969 (100,000,000 SL)
+오너 이전 tx   : 0x4756a1fa5c18240aadc59409716f123c6141c1782d0c0eb93e7b9380635eeaa8 (SLVesting → SLTimelock)
+TGE            : 1788848374 (2026-09-08T06:19:34Z)
+타임락 예약    : updateBeneficiary(ADVISORS → 0x14B0e8443fDAc169F460B6d1D5a5101b78f1374B) op 0xadd28c16a5c48f01832978c46d7e052aa08cea7ea4b2de5d26d217fd3984a077, ready 2026-09-10T04:20:51Z
+비고           : 솔로 리허설(버킷 지갑 = 배포자). 메인넷 공시 때는 버킷별 Safe 주소·서명자 명단을 이 표에 추가.

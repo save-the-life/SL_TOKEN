@@ -2,6 +2,24 @@ require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
+const accounts = PRIVATE_KEY ? [PRIVATE_KEY] : [];
+
+// 포크 리허설: FORK_URL 이 있으면 in-process hardhat 네트워크가 해당 체인을 포크한다.
+// (여러 스크립트에 걸쳐 상태를 유지하려면 `npx hardhat node --fork <url>` + `--network localhost` 를 쓸 것)
+const hardhatNet = {
+  // 포크 실행 시 Hardhat 이 "No known hardfork for execution on historical block" 오류를 내지 않도록
+  // BNB 계열 체인의 하드포크 이력을 알려 준다 (BSC·opBNB 는 Cancun 호환 EVM).
+  chains: {
+    56: { hardforkHistory: { cancun: 0 } },
+    97: { hardforkHistory: { cancun: 0 } },
+    204: { hardforkHistory: { cancun: 0 } },
+    5611: { hardforkHistory: { cancun: 0 } },
+  },
+};
+if (process.env.FORK_URL) {
+  hardhatNet.forking = { url: process.env.FORK_URL };
+  if (process.env.FORK_BLOCK) hardhatNet.forking.blockNumber = Number(process.env.FORK_BLOCK);
+}
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -13,20 +31,34 @@ module.exports = {
   },
   networks: {
     // 로컬 테스트용 (기본)
-    hardhat: {},
+    hardhat: hardhatNet,
+
+    // `npx hardhat node` (포크 포함) 로 띄운 로컬 노드
+    localhost: { url: "http://127.0.0.1:8545", chainId: 31337 },
 
     // opBNB 테스트넷
     opbnbTestnet: {
       url: process.env.OPBNB_RPC || "https://opbnb-testnet-rpc.bnbchain.org",
       chainId: 5611,
-      accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
-      // opBNB는 가스가 매우 저렴. 필요시 gasPrice 조정.
+      accounts,
     },
+
+    // BSC 테스트넷 — PancakeSwap 공식 테스트넷 배포가 있는 유일한 체인 (DEX 리허설용)
+    bscTestnet: {
+      url: process.env.BSC_TESTNET_RPC || "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
+      chainId: 97,
+      accounts,
+    },
+
+    // ⚠️ 메인넷(opBNB 204 · BSC 56)은 이 파일에 두지 않는다.
+    //    메인넷 배포는 별도 설정 파일(hardhat.mainnet.config.js)을 --config 로 명시할 때만 가능하게 해서
+    //    평소 명령이 실수로 메인넷을 고르지 못하게 한다.
   },
-  // 컨트랙트 검증(opBNBScan/NodeReal) 사용 시 설정
+  // 컨트랙트 검증(opBNBScan/NodeReal, BscScan) 사용 시 설정
   etherscan: {
     apiKey: {
       opbnbTestnet: process.env.NODEREAL_API_KEY || "",
+      bscTestnet: process.env.BSCSCAN_API_KEY || "",
     },
     customChains: [
       {
