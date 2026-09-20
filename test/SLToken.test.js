@@ -126,20 +126,23 @@ describe("SL Token 얼로케이션 & 베스팅 (감사 대응 반영)", function
     expect(await vesting.releasable(id)).to.equal(amount);
   });
 
-  it("Participant: TGE 12% 즉시 + 36개월 선형(월 ≈2.44M)", async function () {
+  it("Participant: TGE 0 + 6개월 락 + 36개월 선형(온체인 상한 월 ≈2.78M)", async function () {
     const amount = toWei("100000000");
     await token.transfer(await vesting.getAddress(), amount);
     const id = ethers.id("PARTICIPANT");
-    await vesting.createSchedule(id, alice.address, amount, tge, 0n, 36n * MONTH, 1200);
+    await vesting.createSchedule(id, alice.address, amount, tge, 6n * MONTH, 36n * MONTH, 0);
 
+    // 상장일과 락 기간에는 0
     await time.increaseTo(tge);
-    expect(await vesting.releasable(id)).to.be.closeTo(toWei("12000000"), toWei("100"));
+    expect(await vesting.releasable(id)).to.equal(0n);
+    await time.increaseTo(tge + 6n * MONTH - 10n);
+    expect(await vesting.releasable(id)).to.equal(0n);
 
-    // 1개월 후: 12M + 88M/36 ≈ 14,444,444
-    await time.increaseTo(tge + 1n * MONTH);
-    expect(await vesting.releasable(id)).to.be.closeTo(toWei("12000000") + toWei("88000000") / 36n, toWei("100"));
+    // 락 종료 1개월 후: 100M/36 ≈ 2,777,777
+    await time.increaseTo(tge + 7n * MONTH);
+    expect(await vesting.releasable(id)).to.be.closeTo(toWei("100000000") / 36n, toWei("100"));
 
-    await time.increaseTo(tge + 36n * MONTH + 1n);
+    await time.increaseTo(tge + 42n * MONTH + 1n);
     expect(await vesting.releasable(id)).to.equal(amount);
   });
 

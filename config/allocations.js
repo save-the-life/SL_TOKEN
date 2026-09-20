@@ -18,7 +18,7 @@
  * [주의: 컨트랙트가 담당하지 않는 부분 — 오프체인/별도 개발 필요]
  *  - Network Access Credit Pool(WCS 전환): 지금은 전용 지갑에 "배정만" 하며, WCS→SL 전환 로직은
  *    이후 별도 컨트랙트로 개발·감사 예정. (현재 direct 배정)
- *  - Participant Program(Ambassador): TGE 12%(12M) 즉시 + 나머지 88M 을 36개월 선형(월 상한 ≈2.44M)으로 관리 지갑에 해제되며,
+ *  - Participant Program(Ambassador): TGE 물량 없음. 6개월 락 후 36개월 선형(온체인 상한 월 ≈2.78M)으로 관리 지갑에 해제되며, (2026-09-15 회의·09-20 반영)
  *    앰버서더별 활동 기반 세부 분배는 재단이 오프체인으로 관리.
  *  - Liquidity Pool: TGE에 전량 전송 후, DEX 유동성 공급으로 받는 LP 토큰은 24개월 락 (별도 락커).
  *  - Treasury(TGE 3% + 클리프 6 + 선형 24) / Ecosystem Reserve(클리프 12 + 선형 36): 락 후 선형 해제.
@@ -26,7 +26,7 @@
  */
 // 2026-09-10 회의 확정 (09-12 반영): Participant 12%/0/36, Treasury 0%/6/60, Marketing 20%/0/24, Ecosystem 0/12/36,
 //   NACP 6개월 락(cliff 6, duration 0), VC 300M → VC 295M + Presale 5M(락업 없음, 0.07 USDT).
-//   상장일 즉시 해제 = LP 160M + Marketing 20M + Participant 12M + Presale 5M = 197M (9.85%), 매도가능 37M (1.85%). 백서 v2.2 에 반영 예정.
+//   상장일 즉시 해제 = LP 160M + Marketing 20M + Presale 5M = 185M (9.25%), 매도가능 25M (1.25%). 이용자 지급은 월 1,000,000 이하 정책 상한 + 지급분마다 6개월 락. 백서 v2.2 에 반영 예정.
 module.exports = {
   tokenName: "SL Token",
   tokenSymbol: "SL",
@@ -35,7 +35,7 @@ module.exports = {
   buckets: [
     // key          라벨                            amount(개)      type        tgeBps  cliff  linear  wallet
     { key: "NACP",        label: "Network Access Credit Pool", amount: "200000000", type: "vesting", tgeBps: 0,     cliffMonths: 6,  durationMonths: 0,  wallet: "" }, // 6개월 락 후 전량 → 수요 기반 방출
-    { key: "PARTICIPANT", label: "Participant Program",        amount: "100000000", type: "vesting", tgeBps: 1200,  cliffMonths: 0,  durationMonths: 36, wallet: "" },
+    { key: "PARTICIPANT", label: "Participant Program",        amount: "100000000", type: "vesting", tgeBps: 0,     cliffMonths: 6,  durationMonths: 36, wallet: "" },
     { key: "VC",          label: "VC Sale",                    amount: "295000000", type: "vesting", tgeBps: 0,     cliffMonths: 18, durationMonths: 24, wallet: "" },
     { key: "PRESALE",     label: "Presale (no lockup)",        amount: "5000000",   type: "direct",  tgeBps: 10000, cliffMonths: 0,  durationMonths: 0,  wallet: "" }, // VC Sale & Presale 버킷의 프리세일 몫 (0.07 USDT, 락업 없음)
     { key: "TEAM",        label: "Team & Core",                amount: "300000000", type: "vesting", tgeBps: 0,     cliffMonths: 12, durationMonths: 36, wallet: "" },

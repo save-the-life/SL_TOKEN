@@ -30,7 +30,7 @@ hardhat.config.js  # opBNB 테스트넷(chainId 5611) 설정
 | 카테고리 | 비율 | 토큰 수 | TGE | 클리프 | 선형 | 방식 |
 | --- | --- | --- | --- | --- | --- | --- |
 | Network Access Credit Pool | 10% | 200,000,000 | 0% | 6개월 | — (6개월 후 전량) | vesting (6개월 락 후 관리 지갑, 수요 기반 방출) |
-| Participant Program | 5% | 100,000,000 | 12% (12,000,000) | 0 | 36개월 | vesting (활동 기반 · 월 상한 ≈2.44M) |
+| Participant Program | 5% | 100,000,000 | 0 | 6개월 | 36개월 | vesting (활동 기반 · 이용자 지급은 월 1,000,000 이하 정책 상한, 지급분마다 6개월 락) |
 | VC Sale | 14.75% | 295,000,000 | 0% | 18개월 | 24개월 | vesting |
 | Presale (VC Sale & Presale 의 프리세일 몫) | 0.25% | 5,000,000 | 100% (즉시) | — | — | direct (0.07 USDT, 락업 없음) |
 | Team & Core | 15% | 300,000,000 | 0% | 12개월 | 36개월 | vesting |
@@ -47,7 +47,7 @@ hardhat.config.js  # opBNB 테스트넷(chainId 5611) 설정
 * Network Access Credit Pool(WCS 전환)과 Participant Program은 지금은 관리 지갑에 배정만 하며,
   전환·활동 기반 분배 로직은 오프체인 또는 별도 컨트랙트로 처리합니다.
 * Liquidity Pool은 TGE에 전량 전송 후, DEX 유동성 공급으로 받는 LP 토큰을 24개월 락합니다(타임락 예약 전송).
-* 상장일 즉시 해제 합계 = LP 160M + Marketing 20M + Participant 12M + Presale 5M = 197,000,000 (9.85%), 매도가능 37,000,000 (1.85%). (2026-09-10 회의 확정, 09-12 반영 — 이 표와 config/allocations.js 가 단일 진실, 백서 v2.2 로 공시 예정)
+* 상장일 즉시 해제 합계 = LP 160M + Marketing 20M + Presale 5M = 185,000,000 (9.25%), 매도가능 25,000,000 (1.25%). Participant Program 은 TGE 물량 없이 6개월 락(2026-09-15 회의, 09-20 반영). (2026-09-10 회의 확정, 09-12 반영 — 이 표와 config/allocations.js 가 단일 진실, 백서 v2.2 로 공시 예정)
 * Treasury / Ecosystem Reserve는 1년 락 후 선형 해제이며, 실제 사용은 재단 governance vote로 결정·공지합니다.
 
 ## 3. 설치
