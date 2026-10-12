@@ -25,8 +25,8 @@
  *    실제 사용은 재단 governance vote로 결정·공지(오프체인).
  */
 // 2026-09-10 회의 확정 (09-12 반영): Participant 12%/0/36, Treasury 0%/6/60, Marketing 20%/0/24, Ecosystem 0/12/36,
-//   NACP 6개월 락(cliff 6, duration 0), VC 300M → VC 295M + Presale 5M(락업 없음, 0.07 USDT).
-//   상장일 즉시 해제 = LP 160M + Marketing 20M + Presale 5M = 185M (9.25%), 매도가능 25M (1.25%). 이용자 지급은 월 1,000,000 이하 정책 상한 + 지급분마다 6개월 락. 백서 v2.2 에 반영 예정.
+//   NACP 6개월 락(cliff 6, duration 0), VC 300M → VC 280M + Presale 20M(락업 없음, 0.07 USDT; 2026-10-06 회의로 5M→20M). 세일 종료 시 미판매분은 소각.
+//   상장일 즉시 해제 = LP 160M + Marketing 20M + Presale 20M = 200M (10.0%), 매도가능 40M (2.0%). 이용자 지급은 월 1,000,000 이하 정책 상한 + 지급분마다 6개월 락. 백서 v2.2 에 반영 예정.
 module.exports = {
   tokenName: "SL Token",
   tokenSymbol: "SL",
@@ -36,8 +36,8 @@ module.exports = {
     // key          라벨                            amount(개)      type        tgeBps  cliff  linear  wallet
     { key: "NACP",        label: "Network Access Credit Pool", amount: "200000000", type: "vesting", tgeBps: 0,     cliffMonths: 6,  durationMonths: 0,  wallet: "" }, // 6개월 락 후 전량 → 수요 기반 방출
     { key: "PARTICIPANT", label: "Participant Program",        amount: "100000000", type: "vesting", tgeBps: 0,     cliffMonths: 6,  durationMonths: 36, wallet: "" },
-    { key: "VC",          label: "VC Sale",                    amount: "295000000", type: "vesting", tgeBps: 0,     cliffMonths: 18, durationMonths: 24, wallet: "" },
-    { key: "PRESALE",     label: "Presale (no lockup)",        amount: "5000000",   type: "direct",  tgeBps: 10000, cliffMonths: 0,  durationMonths: 0,  wallet: "" }, // VC Sale & Presale 버킷의 프리세일 몫 (0.07 USDT, 락업 없음)
+    { key: "VC",          label: "VC Sale",                    amount: "280000000", type: "vesting", tgeBps: 0,     cliffMonths: 18, durationMonths: 24, wallet: "" },
+    { key: "PRESALE",     label: "Presale (no lockup)",        amount: "20000000",  type: "direct",  tgeBps: 10000, cliffMonths: 0,  durationMonths: 0,  wallet: "" }, // VC Sale & Presale 버킷의 프리세일 몫 (0.07 USDT, 락업 없음)
     { key: "TEAM",        label: "Team & Core",                amount: "300000000", type: "vesting", tgeBps: 0,     cliffMonths: 12, durationMonths: 36, wallet: "" },
     { key: "TREASURY",    label: "Treasury",                   amount: "400000000", type: "vesting", tgeBps: 0,     cliffMonths: 6,  durationMonths: 60, wallet: "" },
     { key: "LIQUIDITY",   label: "Liquidity Pool",             amount: "160000000", type: "direct",  tgeBps: 10000, cliffMonths: 0,  durationMonths: 0,  wallet: "" },
