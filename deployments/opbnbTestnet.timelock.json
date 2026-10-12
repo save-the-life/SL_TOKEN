@@ -1,0 +1,11 @@
+{
+  "timelock": "0xAb8b27cDE531cc396c8BE012FAABB083f202d206",
+  "minDelay": "172800",
+  "proposers": [
+    "0x6E155B03B4E234a2dB0cA06a50Dc1d5E644bAf93"
+  ],
+  "executors": [
+    "0x6E155B03B4E234a2dB0cA06a50Dc1d5E644bAf93"
+  ],
+  "deployedAt": "2026-09-08T04:19:48.277Z"
+}

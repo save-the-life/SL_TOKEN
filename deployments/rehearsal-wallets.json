@@ -1,0 +1,6 @@
+{
+  "deployer": "0x6E155B03B4E234a2dB0cA06a50Dc1d5E644bAf93",
+  "secondBeneficiary": "0x14B0e8443fDAc169F460B6d1D5a5101b78f1374B",
+  "createdAt": "2026-09-08T02:52:40.521Z",
+  "note": "T1 testnet-only deployer; second address has no stored key (used only as a new beneficiary)"
+}
